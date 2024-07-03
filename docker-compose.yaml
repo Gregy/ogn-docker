@@ -1,26 +1,14 @@
 services:
-  ogn-configuration:
-    image: ogn-configuration
-    container_name: ogn-configuration
-    restart: on-failure
-    env_file:
-      - .env
-    volumes:
-      - shared_data:/shared_data
-
   ogn-rf:
-    image: ogn-rf
+    image: kammermark/ogn-rf:main
     container_name: ogn-rf
     restart: unless-stopped
-    depends_on:
-      ogn-configuration:
-        condition: service_healthy
     ports:
       - 8080:8080
     expose:
       - 50010
     volumes:
-      - shared_data:/shared_data
+      - "${PWD}/LKHC.conf:/shared_data/rtlsdr-ogn.conf"
     command: /shared_data/rtlsdr-ogn.conf
     devices:
       - /dev/bus/usb:/dev/bus/usb
@@ -30,37 +18,19 @@ services:
     stdin_open: true
 
   ogn-decode:
-    image: ogn-decode
+    image: kammermark/ogn-decode:main
     container_name: ogn-decode
     restart: unless-stopped
-    depends_on:
-      ogn-configuration:
-        condition: service_healthy
     ports:
       - 8081:8081
     volumes:
-      - shared_data:/shared_data
+      - "${PWD}/LKHC.conf:/shared_data/rtlsdr-ogn.conf"
     command: /shared_data/rtlsdr-ogn.conf
     networks:
       - receiver
     tty: true
     stdin_open: true
 
-  aprs-filter:
-    image: aprs-filter
-    container_name: aprs-filter
-    restart: unless-stopped
-    depends_on:
-      ogn-configuration:
-        condition: service_healthy
-    expose:
-      - 14580
-    networks:
-      - receiver
-
 networks:
   receiver:
     driver: bridge
-
-volumes:
-  shared_data:
