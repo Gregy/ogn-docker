@@ -1,36 +1,6 @@
 services:
-  ogn-rf:
-    image: kammermark/ogn-rf:main
-    container_name: ogn-rf
+  ogn:
+    build: .
     restart: unless-stopped
-    ports:
-      - 8080:8080
-    expose:
-      - 50010
-    volumes:
-      - "${PWD}/LKHC.conf:/shared_data/rtlsdr-ogn.conf"
-    command: /shared_data/rtlsdr-ogn.conf
-    devices:
-      - /dev/bus/usb:/dev/bus/usb
-    networks:
-      - receiver
-    tty: true
-    stdin_open: true
-
-  ogn-decode:
-    image: kammermark/ogn-decode:main
-    container_name: ogn-decode
-    restart: unless-stopped
-    ports:
-      - 8081:8081
-    volumes:
-      - "${PWD}/LKHC.conf:/shared_data/rtlsdr-ogn.conf"
-    command: /shared_data/rtlsdr-ogn.conf
-    networks:
-      - receiver
-    tty: true
-    stdin_open: true
-
-networks:
-  receiver:
-    driver: bridge
+    devices: ["/dev/bus/usb:/dev/bus/usb"]
+    ports: ["50000:50000", "50001:50001"]
